@@ -40,7 +40,7 @@ books = [
 
 books_bp = Blueprint("books", __name__, url_prefix="/books")
 
-@books_bp.route("/books/all", methods=["GET"])
+@books_bp.route("", methods=["GET"])
 def handle_books():
     books_response = []
     for book in books:
