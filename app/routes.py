@@ -5,8 +5,8 @@ from flask import Blueprint, jsonify, abort, make_response, request
 hello_world_bp = Blueprint("hello_world", __name__)
 books_bp = Blueprint("books", __name__, url_prefix="/books")
 
-@books_bp.route("", methods=["POST"])
-def handle_books():
+@books_bp.route("", methods=["GET", "POST"])
+def create_book():
     request_body = request.get_json()
     new_book = Book(title=request_body["title"], 
                     description=request_body["description"])
@@ -14,6 +14,20 @@ def handle_books():
     db.session.commit()
 
     return make_response(f"Book {new_book.title} successfully created", 201)
+
+@books_bp.route("", methods=["GET"])
+def read_all_books():
+    books_response = []
+    books = Book.query.all()
+    for book in books:
+        books_response.append(
+            {
+            "id": book.id, 
+            "title": book.title, 
+            "description": book.description
+            }
+        )
+    return jsonify(books_response)
 
 @hello_world_bp.route("/hello-world", methods=["GET"])
 def say_hello_world():
