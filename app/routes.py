@@ -2,7 +2,6 @@ from app import db
 from app.models.book import Book 
 from flask import Blueprint, jsonify, abort, make_response, request 
 
-hello_world_bp = Blueprint("hello_world", __name__)
 books_bp = Blueprint("books", __name__, url_prefix="/books")
 
 @books_bp.route("", methods=["GET", "POST"])
@@ -29,29 +28,55 @@ def read_all_books():
         )
     return jsonify(books_response)
 
-@hello_world_bp.route("/hello-world", methods=["GET"])
-def say_hello_world():
-    my_beautiful_response_body = "Hello, World!"
-    return my_beautiful_response_body
-
-@hello_world_bp.route("/hello/JSON", methods=["GET"])
-def say_hello_json():
+@books_bp.route("/<book_id>", methods=["GET"])
+def read_one_book(book_id):
+    book = Book.query.get(book_id)
+    
     return {
-        "name": "Natascha",
-        "message": "You got this, guuuurl!", 
-        "hobbies": ["Reading", "Playing Video Games","Hiking", "Traveling"]
+        "id": book.id, 
+        "title": book.title,
+        "description": book.description
     }
 
-@hello_world_bp.route("/broken-endpoint-with-broken-server-code")
-def broken_endpoint():
-    response_body = {
-        "name": "Natascha",
-        "message": "You got this, guuuurl!", 
-        "hobbies": ["Reading", "Playing Video Games","Hiking", "Traveling"]
-    }
-    new_hobby = ["Eating"]
-    response_body["hobbies"] = response_body["hobbies"] + new_hobby
-    return response_body
+def validate_book(book_id): 
+    try:
+        book_id = int(book_id)
+    except: 
+        abort(make_response({"message":f"book {book_id} invalid"}, 400))
+    
+    for book in books:
+        if book.id == book_id:
+            return book_id
+    
+    abort(make_response({"message":f"book {book_id} not found"}, 404))
+
+
+
+# hello_world_bp = Blueprint("hello_world", __name__)
+
+# @hello_world_bp.route("/hello-world", methods=["GET"])
+# def say_hello_world():
+#     my_beautiful_response_body = "Hello, World!"
+#     return my_beautiful_response_body
+
+# @hello_world_bp.route("/hello/JSON", methods=["GET"])
+# def say_hello_json():
+#     return {
+#         "name": "Natascha",
+#         "message": "You got this, guuuurl!", 
+#         "hobbies": ["Reading", "Playing Video Games","Hiking", "Traveling"]
+#     }
+
+# @hello_world_bp.route("/broken-endpoint-with-broken-server-code")
+# def broken_endpoint():
+#     response_body = {
+#         "name": "Natascha",
+#         "message": "You got this, guuuurl!", 
+#         "hobbies": ["Reading", "Playing Video Games","Hiking", "Traveling"]
+#     }
+#     new_hobby = ["Eating"]
+#     response_body["hobbies"] = response_body["hobbies"] + new_hobby
+#     return response_body
 
 
 # class Book: 
