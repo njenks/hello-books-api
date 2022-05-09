@@ -1,6 +1,5 @@
 from app import db
 from app.models.book import Book 
-from app.models.author import Author
 from flask import Blueprint, jsonify, abort, make_response, request 
 
 books_bp = Blueprint("books", __name__, url_prefix="/books")
@@ -81,43 +80,3 @@ def delete_one_book(book_id):
     return make_response(jsonify(f"Book #{book.id} successfully deleted"))
 
 
-# ****************************************** Author Routes ************************************************************
-
-authors_bp = Blueprint("authors", __name__, url_prefix="/authors")
-
-def validate_book(author_id): 
-    try:
-        author_id = int(author_id)
-    except: 
-        abort(make_response({"message":f"book {author_id} invalid"}, 400))
-    
-    author = Author.query.get(author_id)
-
-    if not author: 
-        abort(make_response({"message":f"book {author_id} not found"}, 404))
-    
-    return author 
-
-@authors_bp.route("", methods=["POST"])
-def create_author():
-    request_body = request.get_json()
-    new_author = Author(name=request_body["name"])
-
-    db.session.add(new_author)
-    db.session.commit()
-
-    return make_response(jsonify(f" Author {new_author.name} successfully created"), 201)
-
-@authors_bp.route("", methods=["GET"])
-def read_all_authors():
-    authors = Author.query.all()
-
-    authors_response = []
-    for author in authors:
-        authors_response.append(
-            {
-            "id": author.id,
-            "name": author.name
-            }
-        )
-    return jsonify(authors_response)
